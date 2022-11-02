@@ -176,8 +176,6 @@ class Import
                     }
                 }
 
-                $prepareInsert = $this->doMutateBeforeCreate($prepareInsert);
-
                 if (! $this->shouldMassCreate) {
                     $model = (new $this->model)->fill($prepareInsert);
                     $model = tap($model, function ($instance) {
