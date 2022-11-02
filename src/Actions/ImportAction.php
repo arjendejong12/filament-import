@@ -9,7 +9,7 @@ use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Toggle;
-use Filament\Pages\Actions\Action;
+use Filament\Tables\Actions\Action;
 use Filament\Support\Actions\Concerns\CanCustomizeProcess;
 use Konnco\FilamentImport\Concerns\HasActionMutation;
 use Konnco\FilamentImport\Concerns\HasActionUniqueField;
