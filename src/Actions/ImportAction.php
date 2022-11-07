@@ -64,6 +64,7 @@ class ImportAction extends Action
                     ->disk('local')
                     ->skipHeader((bool) $data['skipHeader'])
                     ->massCreate($this->shouldMassCreate)
+                    ->mutateRowsBeforeCreate($this->mutateRowsBeforeCreate)
                     ->mutateBeforeCreate($this->mutateBeforeCreate)
                     ->mutateAfterCreate($this->mutateAfterCreate)
                     ->execute();

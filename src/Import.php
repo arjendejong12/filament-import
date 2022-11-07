@@ -121,37 +121,61 @@ class Import
 
     public function execute()
     {
-        $importSuccess = true;
-        $skipped = 0;
-        DB::transaction(function () use (&$importSuccess, &$skipped) {
-            foreach ($this->getSpreadsheetData() as $line => $row) {
-                $prepareInsert = collect([]);
-                $rules = [];
-                $validationMessages = [];
+        $importData = [];
+        $importDataProcessing = true;
+        foreach ($this->getSpreadsheetData() as $line => $row) {
+            $prepareInsert = collect([]);
+            $rules = [];
+            $validationMessages = [];
 
-                foreach (Arr::dot($this->fields) as $key => $value) {
-                    $field = $this->formSchemas[$key];
-                    $fieldValue = $value;
+            foreach (Arr::dot($this->fields) as $key => $value) {
+                $field = $this->formSchemas[$key];
+                $fieldValue = $value;
 
-                    if ($field instanceof ImportField) {
-                        // check if field is optional
-                        if (! $field->isRequired() && blank(@$row[$value])) {
-                            continue;
-                        }
-
-                        $fieldValue = $field->doMutateBeforeCreate($row[$value], collect($row)) ?? $row[$value];
-                        $rules[$key] = $field->getValidationRules();
-                        if (count($field->getCustomValidationMessages())) {
-                            $validationMessages[$key] = $field->getCustomValidationMessages();
-                        }
+                if ($field instanceof ImportField) {
+                    // check if field is optional
+                    if (!$field->isRequired() && blank(@$row[$value])) {
+                        continue;
                     }
 
-                    $prepareInsert[$key] = $fieldValue;
+                    $fieldValue = $field->doMutateBeforeCreate($row[$value], collect($row), $line) ?? $row[$value];
+                    $rules[$key] = $field->getValidationRules();
+                    if (count($field->getCustomValidationMessages())) {
+                        $validationMessages[$key] = $field->getCustomValidationMessages();
+                    }
                 }
 
-                $prepareInsert = $this->validated(data: Arr::undot($prepareInsert), rules: $rules, customMessages: $validationMessages, line: $line + 1);
+                $prepareInsert[$key] = $fieldValue;
+            }
 
-                if (! $prepareInsert) {
+            $prepareInsert = $this->validated(data: Arr::undot($prepareInsert), rules: $rules, customMessages: $validationMessages, line: $line + 1);
+
+            if (!$prepareInsert) {
+                $importDataProcessing = false;
+
+                break;
+            }
+
+            $importData[$line] = $prepareInsert;
+        }
+
+        if (!$importDataProcessing) {
+            return;
+        }
+
+        $importData = $this->doMutateRowsBeforeCreate($importData);
+        // Short circuit.
+        if ($importData === false) {
+            return;
+        }
+
+        $importSuccess = true;
+        $skipped = 0;
+        DB::transaction(function () use ($importData, &$importSuccess, &$skipped) {
+            foreach ($importData as $line => $prepareInsert) {
+                $prepareInsert = $this->doMutateBeforeCreate($prepareInsert);
+                // Short circuit.
+                if ($prepareInsert === false) {
                     DB::rollBack();
                     $importSuccess = false;
 
@@ -196,9 +220,7 @@ class Import
                 ->body(trans('filament-import::actions.import_succeeded', ['count' => count($this->getSpreadsheetData()), 'skipped' => $skipped]))
                 ->persistent()
                 ->send();
-        }
-
-        if (!$importSuccess) {
+        } else {
             Notification::make()
                 ->danger()
                 ->title(trans('filament-import::actions.import_failed_title'))

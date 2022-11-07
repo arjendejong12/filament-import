@@ -7,8 +7,27 @@ use Illuminate\Database\Eloquent\Model;
 
 trait HasActionMutation
 {
+    protected bool|Closure $mutateRowsBeforeCreate = false;
     protected bool|Closure $mutateBeforeCreate = false;
     protected bool|Closure $mutateAfterCreate = false;
+
+    public function mutateRowsBeforeCreate(bool|Closure $fn): static
+    {
+        $this->mutateRowsBeforeCreate = $fn;
+
+        return $this;
+    }
+
+    public function doMutateRowsBeforeCreate(array $row)
+    {
+        $closure = $this->mutateRowsBeforeCreate;
+
+        if (! $closure) {
+            return $row;
+        }
+
+        return $closure($row);
+    }
 
     public function mutateBeforeCreate(bool|Closure $fn): static
     {
