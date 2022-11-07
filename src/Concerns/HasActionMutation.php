@@ -54,7 +54,7 @@ trait HasActionMutation
         return $this;
     }
 
-    public function doMutateAfterCreate(Model $model, array $row)
+    public function doMutateAfterCreate(Model $model, array $row, bool $isUpdate)
     {
         $closure = $this->mutateAfterCreate;
 
@@ -62,6 +62,6 @@ trait HasActionMutation
             return $model;
         }
 
-        return $closure($model, $row);
+        return $closure($model, $row, $isUpdate);
     }
 }

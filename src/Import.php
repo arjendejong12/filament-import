@@ -194,7 +194,11 @@ class Import
 
                     $exists = (new $this->model)->where($this->allowUpdatingExistingModelAttribute, $prepareInsert[$this->allowUpdatingExistingModelAttribute] ?? null)->first();
                     if ($exists instanceof $this->model) {
-                        $exists->update(collect($prepareInsert)->only($this->allowUpdatingExistingModelValues)->toArray());
+                        $exists = tap($exists, function ($instance) use ($prepareInsert) {
+                            $instance->update(collect($prepareInsert)->only($this->allowUpdatingExistingModelValues)->toArray());
+                        });
+
+                        $this->doMutateAfterCreate($exists, $prepareInsert, true);
 
                         continue;
                     }
