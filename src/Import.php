@@ -182,8 +182,6 @@ class Import
                     break;
                 }
 
-                $prepareInsert = $this->doMutateBeforeCreate($prepareInsert);
-
                 if ($this->uniqueField !== false) {
                     if (is_null($prepareInsert[$this->uniqueField] ?? null)) {
                         DB::rollBack();
