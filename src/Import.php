@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Konnco\FilamentImport\Actions\ImportField;
+use Konnco\FilamentImport\Concerns\HasActionAllowUpdating;
 use Konnco\FilamentImport\Concerns\HasActionMutation;
 use Konnco\FilamentImport\Concerns\HasActionUniqueField;
 use Maatwebsite\Excel\Concerns\Importable;
@@ -18,6 +19,7 @@ use Maatwebsite\Excel\Concerns\Importable;
 class Import
 {
     use Importable;
+    use HasActionAllowUpdating;
     use HasActionMutation;
     use HasActionUniqueField;
 
@@ -180,6 +182,22 @@ class Import
                     $importSuccess = false;
 
                     break;
+                }
+
+                if ($this->allowUpdatingExistingModelAttribute !== false) {
+                    if (is_null($prepareInsert[$this->allowUpdatingExistingModelAttribute] ?? null)) {
+                        DB::rollBack();
+                        $importSuccess = false;
+
+                        break;
+                    }
+
+                    $exists = (new $this->model)->where($this->allowUpdatingExistingModelAttribute, $prepareInsert[$this->allowUpdatingExistingModelAttribute] ?? null)->first();
+                    if ($exists instanceof $this->model) {
+                        $exists->update(collect($prepareInsert)->only($this->allowUpdatingExistingModelValues)->toArray());
+
+                        continue;
+                    }
                 }
 
                 if ($this->uniqueField !== false) {

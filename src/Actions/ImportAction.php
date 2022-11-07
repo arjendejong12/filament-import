@@ -11,6 +11,7 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Toggle;
 use Filament\Tables\Actions\Action;
 use Filament\Support\Actions\Concerns\CanCustomizeProcess;
+use Konnco\FilamentImport\Concerns\HasActionAllowUpdating;
 use Konnco\FilamentImport\Concerns\HasActionMutation;
 use Konnco\FilamentImport\Concerns\HasActionUniqueField;
 use Konnco\FilamentImport\Concerns\HasTemporaryDisk;
@@ -23,6 +24,7 @@ class ImportAction extends Action
     use CanCustomizeProcess;
     use Importable;
     use HasTemporaryDisk;
+    use HasActionAllowUpdating;
     use HasActionMutation;
     use HasActionUniqueField;
 
@@ -60,6 +62,7 @@ class ImportAction extends Action
                     ->fields($selectedField)
                     ->formSchemas($this->fields)
                     ->uniqueField($this->uniqueField)
+                    ->allowUpdatingExistingModel($this->allowUpdatingExistingModelAttribute, $this->allowUpdatingExistingModelValues)
                     ->model($model)
                     ->disk('local')
                     ->skipHeader((bool) $data['skipHeader'])
