@@ -29,6 +29,7 @@ class ImportAction extends Action
     use HasActionUniqueField;
 
     protected array $fields = [];
+    protected array $fieldsAfter = [];
 
     protected bool $shouldMassCreate = true;
 
@@ -109,15 +110,17 @@ class ImportAction extends Action
     /**
      * @param  array  $fields
      * @param  int  $columns
+     * @param  array  $fieldsAfter
      * @return $this
      */
-    public function fields(array $fields, int $columns = 1): static
+    public function fields(array $fields, int $columns = 1, $fieldsAfter = []): static
     {
         $this->fields = collect($fields)->mapWithKeys(fn ($item) => [$item->getName() => $item])->toArray();
 
         $fields = collect($fields);
 
         $fields = $fields->map(fn (ImportField|Field $field) => $this->getFields($field))->toArray();
+        $fieldsAfter = collect($fieldsAfter)->values()->toArray();
 
         $this->form(
             array_merge(
@@ -129,7 +132,8 @@ class ImportAction extends Action
                         ->visible(function (callable $get) {
                             return $get('file') != null;
                         }),
-                ]
+                ],
+                $fieldsAfter,
             )
         );
 
