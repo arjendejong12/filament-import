@@ -66,7 +66,7 @@ class ImportAction extends Action
                     ->allowUpdatingExistingModel($this->allowUpdatingExistingModelAttribute, $this->allowUpdatingExistingModelValues)
                     ->model($model)
                     ->disk('local')
-                    ->skipHeader((bool) $data['skipHeader'])
+                    ->skipHeader((bool) $data['skipHeader'] ?? true)
                     ->massCreate($this->shouldMassCreate)
                     ->mutateRowsBeforeCreate($this->mutateRowsBeforeCreate)
                     ->mutateBeforeCreate($this->mutateBeforeCreate)
@@ -96,7 +96,8 @@ class ImportAction extends Action
             Hidden::make('fileRealPath'),
             Toggle::make('skipHeader')
                 ->default(true)
-                ->label(__('filament-import::actions.skip_header')),
+                ->label(__('filament-import::actions.skip_header'))
+                ->visible(false),
         ]);
     }
 
