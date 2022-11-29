@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Validator;
 use Konnco\FilamentImport\Actions\ImportField;
 use Konnco\FilamentImport\Concerns\HasActionAllowUpdating;
 use Konnco\FilamentImport\Concerns\HasActionMutation;
+use Konnco\FilamentImport\Concerns\HasActionSkipFieldsInExecution;
 use Konnco\FilamentImport\Concerns\HasActionUniqueField;
 use Maatwebsite\Excel\Concerns\Importable;
 
@@ -21,6 +22,7 @@ class Import
     use Importable;
     use HasActionAllowUpdating;
     use HasActionMutation;
+    use HasActionSkipFieldsInExecution;
     use HasActionUniqueField;
 
     protected string $spreadsheet;
@@ -131,6 +133,10 @@ class Import
             $validationMessages = [];
 
             foreach (Arr::dot($this->fields) as $key => $value) {
+                if (in_array($key, $this->skipFieldsInExecution)) {
+                    continue;
+                }
+
                 $field = $this->formSchemas[$key];
                 $fieldValue = $value;
 
@@ -229,7 +235,7 @@ class Import
                     $model = $this->model::create($prepareInsert);
                 }
 
-                $this->doMutateAfterCreate($model, $prepareInsert);
+                $this->doMutateAfterCreate($model, $prepareInsert, false);
             }
         });
 

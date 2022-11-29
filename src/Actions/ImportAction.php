@@ -13,6 +13,7 @@ use Filament\Tables\Actions\Action;
 use Filament\Support\Actions\Concerns\CanCustomizeProcess;
 use Konnco\FilamentImport\Concerns\HasActionAllowUpdating;
 use Konnco\FilamentImport\Concerns\HasActionMutation;
+use Konnco\FilamentImport\Concerns\HasActionSkipFieldsInExecution;
 use Konnco\FilamentImport\Concerns\HasActionUniqueField;
 use Konnco\FilamentImport\Concerns\HasTemporaryDisk;
 use Konnco\FilamentImport\Import;
@@ -26,6 +27,7 @@ class ImportAction extends Action
     use HasTemporaryDisk;
     use HasActionAllowUpdating;
     use HasActionMutation;
+    use HasActionSkipFieldsInExecution;
     use HasActionUniqueField;
 
     protected array $fields = [];
@@ -61,12 +63,13 @@ class ImportAction extends Action
 
                 Import::make(spreadsheetFilePath: $data['file'])
                     ->fields($selectedField)
+                    ->skipFieldsInExecution($this->skipFieldsInExecution)
                     ->formSchemas($this->fields)
                     ->uniqueField($this->uniqueField)
                     ->allowUpdatingExistingModel($this->allowUpdatingExistingModelAttribute, $this->allowUpdatingExistingModelValues)
                     ->model($model)
                     ->disk('local')
-                    ->skipHeader((bool) $data['skipHeader'])
+                    ->skipHeader((bool) data_get($data, 'skipHeader', true))
                     ->massCreate($this->shouldMassCreate)
                     ->mutateRowsBeforeCreate($this->mutateRowsBeforeCreate)
                     ->mutateBeforeCreate($this->mutateBeforeCreate)
@@ -96,7 +99,8 @@ class ImportAction extends Action
             Hidden::make('fileRealPath'),
             Toggle::make('skipHeader')
                 ->default(true)
-                ->label(__('filament-import::actions.skip_header')),
+                ->label(__('filament-import::actions.skip_header'))
+                ->visible(false),
         ]);
     }
 
