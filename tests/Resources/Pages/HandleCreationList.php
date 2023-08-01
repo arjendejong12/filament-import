@@ -5,9 +5,10 @@ namespace Konnco\FilamentImport\Tests\Resources\Pages;
 use Filament\Resources\Pages\ListRecords;
 use Konnco\FilamentImport\Actions\ImportAction;
 use Konnco\FilamentImport\Actions\ImportField;
+use Konnco\FilamentImport\Tests\Resources\Models\Post;
 use Konnco\FilamentImport\Tests\Resources\PostResource;
 
-class ValidateTestList extends ListRecords
+class HandleCreationList extends ListRecords
 {
     protected static string $resource = PostResource::class;
 
@@ -17,9 +18,12 @@ class ValidateTestList extends ListRecords
             ImportAction::make('import')
                 ->fields([
                     ImportField::make('title'),
-                    ImportField::make('slug')
-                        ->rules('min:6'),
+                    ImportField::make('slug'),
                     ImportField::make('body'),
-                ]), ];
+                ])
+                ->handleRecordCreation(function ($data) {
+                    return Post::create($data);
+                }),
+        ];
     }
 }

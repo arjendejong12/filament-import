@@ -2,6 +2,7 @@
 
 namespace Konnco\FilamentImport;
 
+use Closure;
 use Filament\Notifications\Notification;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\UploadedFile;
@@ -38,6 +39,10 @@ class Import
     protected bool $shouldSkipHeader = false;
 
     protected bool $shouldMassCreate = true;
+
+    protected bool $shouldHandleBlankRows = false;
+
+    protected ?Closure $handleRecordCreation = null;
 
     public static function make(string $spreadsheetFilePath): self
     {
@@ -94,11 +99,25 @@ class Import
         return $this;
     }
 
+    public function handleBlankRows($shouldHandleBlankRows = false): static
+    {
+        $this->shouldHandleBlankRows = $shouldHandleBlankRows;
+
+        return $this;
+    }
+
     public function getSpreadsheetData(): Collection
     {
-        return $this->toCollection(new UploadedFile(Storage::disk($this->disk)->path($this->spreadsheet), $this->spreadsheet))
+        $data = $this->toCollection(new UploadedFile(Storage::disk($this->disk)->path($this->spreadsheet), $this->spreadsheet))
             ->first()
             ->skip((int) $this->shouldSkipHeader);
+        if (!$this->shouldHandleBlankRows) {
+            return $data;
+        }
+
+        return $data->filter(function ($row) {
+            return $row->filter()->isNotEmpty();
+        });
     }
 
     public function validated($data, $rules, $customMessages, $line)
@@ -121,6 +140,13 @@ class Import
         }
 
         return $data;
+    }
+
+    public function handleRecordCreation(Closure|null $closure): static
+    {
+        $this->handleRecordCreation = $closure;
+
+        return $this;
     }
 
     public function execute()
@@ -226,13 +252,18 @@ class Import
                     }
                 }
 
-                if (! $this->shouldMassCreate) {
-                    $model = (new $this->model)->fill($prepareInsert);
-                    $model = tap($model, function ($instance) {
-                        $instance->save();
-                    });
+                if (!$this->handleRecordCreation) {
+                    if (!$this->shouldMassCreate) {
+                        $model = (new $this->model)->fill($prepareInsert);
+                        $model = tap($model, function ($instance) {
+                            $instance->save();
+                        });
+                    } else {
+                        $model = $this->model::create($prepareInsert);
+                    }
                 } else {
-                    $model = $this->model::create($prepareInsert);
+                    $closure = $this->handleRecordCreation;
+                    $model = $closure($prepareInsert);
                 }
 
                 $this->doMutateAfterCreate($model, $prepareInsert, false);
@@ -246,7 +277,9 @@ class Import
                 ->body(trans('filament-import::actions.import_succeeded', ['count' => count($this->getSpreadsheetData()), 'skipped' => $skipped]))
                 ->persistent()
                 ->send();
-        } else {
+        }
+
+        if (!$importSuccess) {
             Notification::make()
                 ->danger()
                 ->title(trans('filament-import::actions.import_failed_title'))

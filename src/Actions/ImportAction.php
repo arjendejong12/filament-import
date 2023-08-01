@@ -2,6 +2,7 @@
 
 namespace Konnco\FilamentImport\Actions;
 
+use Closure;
 use Filament\Forms\ComponentContainer;
 use Filament\Forms\Components\Field;
 use Filament\Forms\Components\Fieldset;
@@ -35,7 +36,11 @@ class ImportAction extends Action
 
     protected bool $shouldMassCreate = true;
 
+    protected bool $shouldHandleBlankRows = false;
+
     protected array $cachedHeadingOptions = [];
+
+    protected null|Closure $handleRecordCreation = null;
 
     public static function getDefaultName(): ?string
     {
@@ -59,7 +64,7 @@ class ImportAction extends Action
 
             $this->process(function (array $data) use ($model) {
                 $selectedField = collect($data)
-                                    ->except('fileRealPath', 'file', 'skipHeader');
+                    ->except('fileRealPath', 'file', 'skipHeader');
 
                 Import::make(spreadsheetFilePath: $data['file'])
                     ->fields($selectedField)
@@ -71,17 +76,16 @@ class ImportAction extends Action
                     ->disk('local')
                     ->skipHeader((bool) data_get($data, 'skipHeader', true))
                     ->massCreate($this->shouldMassCreate)
+                    ->handleBlankRows($this->shouldHandleBlankRows)
                     ->mutateRowsBeforeCreate($this->mutateRowsBeforeCreate)
                     ->mutateBeforeCreate($this->mutateBeforeCreate)
                     ->mutateAfterCreate($this->mutateAfterCreate)
+                    ->handleRecordCreation($this->handleRecordCreation)
                     ->execute();
             });
         });
     }
 
-    /**
-     * @return void
-     */
     public function setInitialForm(): void
     {
         $this->form([
@@ -111,10 +115,14 @@ class ImportAction extends Action
         return $this;
     }
 
+    public function handleBlankRows($shouldHandleBlankRows = false): static
+    {
+        $this->shouldHandleBlankRows = $shouldHandleBlankRows;
+
+        return $this;
+    }
+
     /**
-     * @param  array  $fields
-     * @param  int  $columns
-     * @param  array  $fieldsAfter
      * @return $this
      */
     public function fields(array $fields, int $columns = 1, $fieldsAfter = []): static
@@ -144,10 +152,6 @@ class ImportAction extends Action
         return $this;
     }
 
-    /**
-     * @param  ImportField|Field  $field
-     * @return Field
-     */
     private function getFields(ImportField|Field $field): Field
     {
         if ($field instanceof Field) {
@@ -166,15 +170,29 @@ class ImportAction extends Action
                 $options = $this->cachedHeadingOptions;
 
                 if (count($options) == 0) {
-                    $options = $this->toCollection($filePath)->first()?->first()->filter(fn ($value) => $value != null)->toArray();
+                    $options = $this->toCollection($filePath)->first()?->first()->filter(fn ($value) => $value != null)->map('trim')->toArray();
                 }
 
                 $selected = array_search($field->getName(), $options);
-                if ($selected != false) {
+
+                if ($selected !== false) {
                     $set($field->getName(), $selected);
+                } elseif (! empty($field->getAlternativeColumnNames())) {
+                    $alternativeNames = array_intersect($field->getAlternativeColumnNames(), $options);
+                    if (count($alternativeNames) > 0) {
+                        $set($field->getName(), array_search(current($alternativeNames), $options));
+                    }
                 }
 
                 return $options;
             });
+    }
+
+    public function handleRecordCreation(Closure $closure): static
+    {
+        $this->handleRecordCreation = $closure;
+        $this->massCreate(false);
+
+        return $this;
     }
 }

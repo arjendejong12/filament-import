@@ -2,6 +2,123 @@
 
 All notable changes to `konnco/filament-import` will be documented in this file.
 
+## 1.6.0 - 2023-06-18
+
+### What's Changed
+
+- Bump aglipanci/laravel-pint-action from 1.0.0 to 2.3.0 by @dependabot in https://github.com/konnco/filament-import/pull/95
+- add alternative column names for automatic matching by @alex552 in https://github.com/konnco/filament-import/pull/77
+
+### New Contributors
+
+- @alex552 made their first contribution in https://github.com/konnco/filament-import/pull/77
+
+**Full Changelog**: https://github.com/konnco/filament-import/compare/1.5.3...1.6.0
+
+## 1.5.3 - 2023-05-30
+
+### What's Changed
+
+- Bump dependabot/fetch-metadata from 1.4.0 to 1.5.0 by @dependabot in https://github.com/konnco/filament-import/pull/92
+- Bump dependabot/fetch-metadata from 1.5.0 to 1.5.1 by @dependabot in https://github.com/konnco/filament-import/pull/94
+- AR Translations. by @Saifallak in https://github.com/konnco/filament-import/pull/96
+
+### New Contributors
+
+- @Saifallak made their first contribution in https://github.com/konnco/filament-import/pull/96
+
+**Full Changelog**: https://github.com/konnco/filament-import/compare/1.5.2...1.5.3
+
+## 1.5.2 - 2023-05-03
+
+### What's Changed
+
+- feat: Add pt_BR support by @jeffersonGlemos in https://github.com/konnco/filament-import/pull/89
+
+### New Contributors
+
+- @jeffersonGlemos made their first contribution in https://github.com/konnco/filament-import/pull/89
+
+**Full Changelog**: https://github.com/konnco/filament-import/compare/1.5.1...1.5.2
+
+## 1.5.1 - 2023-05-03
+
+### What's Changed
+
+- add psr/simple-cache ^3.0 by @ster in https://github.com/konnco/filament-import/pull/83
+- Bump dependabot/fetch-metadata from 1.3.6 to 1.4.0 by @dependabot in https://github.com/konnco/filament-import/pull/90
+- Adds FA translations. by @fsamapoor in https://github.com/konnco/filament-import/pull/86
+
+### New Contributors
+
+- @ster made their first contribution in https://github.com/konnco/filament-import/pull/83
+- @fsamapoor made their first contribution in https://github.com/konnco/filament-import/pull/86
+
+**Full Changelog**: https://github.com/konnco/filament-import/compare/1.5...1.5.1
+
+## 1.5 - 2023-03-17
+
+### What's Changed
+
+- Translates labels by @archilex in https://github.com/konnco/filament-import/pull/82
+
+**Full Changelog**: https://github.com/konnco/filament-import/compare/1.4.3...1.5
+
+## 1.4.3 - 2023-02-24
+
+### What's Changed
+
+- Bump dependabot/fetch-metadata from 1.3.5 to 1.3.6 by @dependabot in https://github.com/konnco/filament-import/pull/72
+- Adds spanish translation by @archilex in https://github.com/konnco/filament-import/pull/76
+- Support Laravel 10 by @mtawil in https://github.com/konnco/filament-import/pull/81
+
+### New Contributors
+
+- @archilex made their first contribution in https://github.com/konnco/filament-import/pull/76
+- @mtawil made their first contribution in https://github.com/konnco/filament-import/pull/81
+
+**Full Changelog**: https://github.com/konnco/filament-import/compare/1.4.2...1.4.3
+
+## 1.4.2 - 2023-01-19
+
+### What's Changed
+
+- Excel Blank Rows Calls mutateBeforeCreate (#66) by @jaetoole in https://github.com/konnco/filament-import/pull/67
+
+### New Contributors
+
+- @jaetoole made their first contribution in https://github.com/konnco/filament-import/pull/67
+
+**Full Changelog**: https://github.com/konnco/filament-import/compare/1.4.1...1.4.2
+
+## 1.4.1 - 2022-12-18
+
+**Full Changelog**: https://github.com/konnco/filament-import/compare/1.4.0...1.4.1
+
+## 1.4.0 - 2022-11-15
+
+### What's Changed
+
+- Updated readme by @frankyso in https://github.com/konnco/filament-import/pull/52
+- docs(contributor): contributors readme action update by @github-actions in https://github.com/konnco/filament-import/pull/53
+- Added handle record creation function by @frankyso in https://github.com/konnco/filament-import/pull/54
+
+**Full Changelog**: https://github.com/konnco/filament-import/compare/1.3.0...1.4.0
+
+## 1.3.0 - 2022-11-14
+
+### What's Changed
+
+- feature/mutate after create by @arjendejong12 in https://github.com/konnco/filament-import/pull/44
+- feature/unique field by @arjendejong12 in https://github.com/konnco/filament-import/pull/45
+- Bump dependabot/fetch-metadata from 1.3.4 to 1.3.5 by @dependabot in https://github.com/konnco/filament-import/pull/47
+
+### New Contributors
+
+- @arjendejong12 made their first contribution in https://github.com/konnco/filament-import/pull/44
+
+**Full Changelog**: https://github.com/konnco/filament-import/compare/1.2.7...1.3.0
+
 ## 1.2.7 - 2022-10-28
 
 ### What's Changed

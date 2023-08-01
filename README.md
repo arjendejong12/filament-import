@@ -94,6 +94,23 @@ protected function getActions(): array
 }
 ```
 
+### Filter Out Blank Rows
+If you have a spreadsheet which includes blank data [click here to see more](https://thesoftwarepro.com/excel-tips-how-to-fill-blank-cells/), you can filter these out:
+```php
+protected function getActions(): array
+{
+    return [
+        ImportAction::make()
+            ->handleBlankRows(true)
+            ->fields([
+                ImportField::make('project')
+                    ->label('Project')
+                    ->required(),
+            ])
+    ];
+}
+```
+
 ### Field Data Mutation
 you can also manipulate data from row spreadsheet before saving to model
 ```php
@@ -249,6 +266,28 @@ protected function getActions(): array
 }
 ```
 
+### Create Record
+you can overide the default record creation closure and put your own code by using `handleRecordCreation` function
+
+```php
+use Filament\Forms\Components\Select;
+
+protected function getActions(): array
+{
+    return [
+        ImportAction::make()
+            ->fields([
+                ImportField::make('name')
+                    ->label('Project')
+                    ->rules('required|min:10|max:255'),
+            ], columns:2)
+            ->handleRecordCreation(function($data){
+                return Post::create($data);
+            })
+    ];
+}
+```
+
 
 ## Testing
 
@@ -268,53 +307,3 @@ Please see [CONTRIBUTING](https://github.com/konnco/.github/blob/main/CONTRIBUTI
 
 Please review [our security policy](../../security/policy) on how to report security vulnerabilities.
 
-## Collaborators
-
-<!-- readme: collaborators -start -->
-<table>
-<tr>
-    <td align="center">
-        <a href="https://github.com/abduromanov">
-            <img src="https://avatars.githubusercontent.com/u/37548312?v=4" width="100;" alt="abduromanov"/>
-            <br />
-            <sub><b>Hafiz Abd</b></sub>
-        </a>
-    </td></tr>
-</table>
-<!-- readme: collaborators -end -->
-
-## Contributors
-
-<!-- readme: contributors -start -->
-<table>
-<tr>
-    <td align="center">
-        <a href="https://github.com/frankyso">
-            <img src="https://avatars.githubusercontent.com/u/5705520?v=4" width="100;" alt="frankyso"/>
-            <br />
-            <sub><b>Franky So</b></sub>
-        </a>
-    </td>
-    <td align="center">
-        <a href="https://github.com/rizkyanfasafm">
-            <img src="https://avatars.githubusercontent.com/u/24226461?v=4" width="100;" alt="rizkyanfasafm"/>
-            <br />
-            <sub><b>Rizky Anfasa Farras Mada</b></sub>
-        </a>
-    </td>
-    <td align="center">
-        <a href="https://github.com/abduromanov">
-            <img src="https://avatars.githubusercontent.com/u/37548312?v=4" width="100;" alt="abduromanov"/>
-            <br />
-            <sub><b>Hafiz Abd</b></sub>
-        </a>
-    </td>
-    <td align="center">
-        <a href="https://github.com/tryoasnafi">
-            <img src="https://avatars.githubusercontent.com/u/61939827?v=4" width="100;" alt="tryoasnafi"/>
-            <br />
-            <sub><b>Tryo Asnafi</b></sub>
-        </a>
-    </td></tr>
-</table>
-<!-- readme: contributors -end -->
